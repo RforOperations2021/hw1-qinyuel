@@ -10,7 +10,7 @@ library(zoo)
 # Load dataset
 nyc_art_programs <- read.csv("nyc_art_programs.csv")
 
-# Mutate Year.Month (e.g 10.2018) for later visualization
+# Mutate Year.Month (e.g Oct 2018) for later visualization
 nyc_art_programs <- nyc_art_programs %>%
   mutate(Year.Month = paste(Install.Year, Install.Month))
 
@@ -27,7 +27,7 @@ ui <- fluidPage(
   titlePanel("Temporary Art Programs in New York City (2008-2020)"),
   
   # One functioning downloadButton()
-  downloadButton("downloadData", "Download"),
+  downloadButton("downloadData", "Download Dataset"),
   
   # Sidebar layout with a input and output definitions --------------
   sidebarLayout(
@@ -61,7 +61,7 @@ ui <- fluidPage(
       
       # Set alpha level ---------------------------------------------
       sliderInput(inputId = "alpha", 
-                  label = "Transparency (Bar chart & Boxplot):", 
+                  label = "Transparency (All the plots):", 
                   min = 0, max = 1, 
                   value = 0.5),
       
@@ -86,17 +86,18 @@ ui <- fluidPage(
       # Horizontal line for visual separation -----------------------
       hr(),
       
+      # Have two columns in the side bar
       fluidPage(
         column(6,
                
-        # Select which types of project to plot ---------------------
+               # Select which types of project to plot ---------------
                checkboxGroupInput(inputId = "selected.type",
                                   label = "Select Program Type(s):",
                                   choices = c("Intervention", "Mural", 
                                               "Sculpture"),
                                   selected = "Intervention"),
                
-        # Select which years to plot --------------------------------
+               # Select which years to plot --------------------------
                checkboxGroupInput(inputId = "selected.year",
                                   label = "Select Program Year(s):",
                                   choices = c(2008:2020),
@@ -104,13 +105,14 @@ ui <- fluidPage(
         ),
         
         column(6,
-        # Select sample size ------------------------------------------
+        
+               # Select sample size -----------------------------------
                numericInput(inputId = "n.samp", 
                             label = "Sample size:", 
                             min = 1, max = nrow(nyc_art_programs), 
                             value = 20),
         
-        # Show data table --------------------------------------------
+               # Show data table -------------------------------------
                checkboxInput(inputId = "show.data",
                              label = "Show data table",
                              value = TRUE)
@@ -155,13 +157,13 @@ ui <- fluidPage(
 # Define server function required to create the scatterplot ----------
 server <- function(input, output, session) {
   
-  # Create a subset of data filtering for selected title types --------
+  # Create a subset of data filtering for selected program types -----
   programs.subset <- reactive({
     req(input$selected.type) # ensure availablity of value before proceeding
     filter(nyc_art_programs, Project.Type %in% input$selected.type)
   })
   
-  # Create a subset of data filtering for selected title types --------
+  # Create a subset of data filtering for selected program types ------
   years.subset <- reactive({
     req(input$selected.year) # ensure availablity of value before proceeding
     filter(nyc_art_programs, Year %in% input$selected.year)
@@ -223,6 +225,7 @@ server <- function(input, output, session) {
       geom_bar(aes(y = (..count..)), alpha = input$alpha) +
       labs(x = toTitleCase(str_replace_all(input$x, "\\.", " ")),
            y = toTitleCase("Count"),
+           fill=str_replace_all(input$x, "\\.", " "), 
            title = pretty.plot.title2()
       )
   })
@@ -258,6 +261,7 @@ server <- function(input, output, session) {
                     rownames = FALSE)
     })
   
+  # Print download button -------------------------------------------
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("nyc_art_programs-", Sys.Date(), ".csv", sep = "")
