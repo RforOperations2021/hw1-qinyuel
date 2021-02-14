@@ -51,9 +51,9 @@ ui <- fluidPage(
                               "Project Type" = "Project.Type"), 
                   selected = "Program Initiative"),
       
-      # Set color
+      # Set color ---------------------------------------------------
       selectInput(inputId = "z", 
-                  label = "Color by:",
+                  label = "Color by (Bar chart):",
                   choices = c("Program Initiative" = "Program.Initiative", 
                               "Site Type" = "Site.Type",
                               "Project Type" = "Project.Type"),
@@ -61,7 +61,7 @@ ui <- fluidPage(
       
       # Set alpha level ---------------------------------------------
       sliderInput(inputId = "alpha", 
-                  label = "Alpha:", 
+                  label = "Transparency (Bar chart & Boxplot):", 
                   min = 0, max = 1, 
                   value = 0.5),
       
