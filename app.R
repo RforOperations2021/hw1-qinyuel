@@ -35,6 +35,12 @@ ui <- fluidPage(
     # Inputs: Select variables to plot ------------------------------
     sidebarPanel(
       
+      # Select which years to plot --------------------------
+      checkboxGroupInput(inputId = "selected.year",
+                         label = "Select Program Year(s):",
+                         choices = c(2008:2020),
+                         selected = c(2008:2020)),
+      
       # Select variable for X-axis for bar charts -------------------
       selectInput(inputId = "x", 
                   label = "X-axis (Bar chart):",
@@ -95,13 +101,7 @@ ui <- fluidPage(
                                   label = "Select Program Type(s):",
                                   choices = c("Intervention", "Mural", 
                                               "Sculpture"),
-                                  selected = "Intervention"),
-               
-               # Select which years to plot --------------------------
-               checkboxGroupInput(inputId = "selected.year",
-                                  label = "Select Program Year(s):",
-                                  choices = c(2008:2020),
-                                  selected = c(2008:2020))
+                                  selected = "Intervention")
         ),
         
         column(6,
