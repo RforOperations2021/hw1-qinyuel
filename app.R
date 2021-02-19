@@ -29,19 +29,62 @@ ui <- fluidPage(
   # One functioning downloadButton()
   downloadButton("downloadData", "Download Dataset"),
   
-  # Sidebar layout with a input and output definitions --------------
+  # Sidebar layout with input and output definitions ----------------
   sidebarLayout(
     
     # Inputs: Select variables to plot ------------------------------
     sidebarPanel(
       
-      # Select which years to plot --------------------------
-      checkboxGroupInput(inputId = "selected.year",
-                         label = "Select Program Year(s) (Trend line):",
-                         choices = c(2008:2020),
-                         selected = c(2008:2020)),
+      # The first section in the sidebar ----------------------------
+      h4("TREND LINE"), br(),
       
-      # Select variable for X-axis for bar charts -------------------
+      # Select which years to plot for the trend line ---------------
+      checkboxGroupInput(inputId = "selected.year",
+                         label = "Select Program Year(s)",
+                         choices = c(2008:2020),
+                         selected = c(2008:2020), inline = TRUE),
+      
+      # Show data table --------------------------------------------
+      checkboxInput(inputId = "show.data",
+                    label = "Show Data Table",
+                    value = TRUE),
+      
+      # Horizontal line for visual separation -----------------------
+      hr(),
+      
+      # The second section in the sidebar ----------------------------
+      h4("BAR CHART AND BOXPLOT"), br(),
+      
+      # Two columns for the second section --------------------------
+      fluidRow(
+        
+        # Have two columns in the side bar
+        column(6,
+               
+               # Select which types of project to plot ---------------
+               checkboxGroupInput(inputId = "selected.type",
+                                 label = "Select Program Type(s)",
+                                 choices = c("Intervention", "Mural",
+                                             "Sculpture"),
+                                 selected = "Intervention")
+               ),
+          
+        column(6,
+               
+               # Select sample size -----------------------------------
+               numericInput(inputId = "n.samp", 
+                            label = "Sample Size", 
+                            min = 1, max = nrow(nyc_art_programs), 
+                            value = 20),
+                 
+               # Show data table -------------------------------------
+               checkboxInput(inputId = "show.data.2",
+                             label = "Show Data Table",
+                             value = TRUE)
+               )
+        ),
+      
+      # Select variable for X-axis for bar chart --------------------
       selectInput(inputId = "x", 
                   label = "X-axis (Bar chart):",
                   choices = c("Program Initiative" = "Program.Initiative", 
@@ -49,7 +92,7 @@ ui <- fluidPage(
                               "Project Type" = "Project.Type"), 
                   selected = "Program Initiative"),
       
-      # Select variable for X-axis for boxplots ---------------------
+      # Select variable for X-axis for boxplot ----------------------
       selectInput(inputId = "x2", 
                   label = "X-axis (Boxplot):",
                   choices = c("Program Initiative" = "Program.Initiative", 
@@ -57,7 +100,7 @@ ui <- fluidPage(
                               "Project Type" = "Project.Type"), 
                   selected = "Program Initiative"),
       
-      # Set color ---------------------------------------------------
+      # Set color for bar chart and boxplot -------------------------
       selectInput(inputId = "z", 
                   label = "Color by (Bar chart):",
                   choices = c("Program Initiative" = "Program.Initiative", 
@@ -65,14 +108,17 @@ ui <- fluidPage(
                               "Project Type" = "Project.Type"),
                   selected = "Program Initiative"),
       
-      # Set alpha level ---------------------------------------------
-      sliderInput(inputId = "alpha", 
-                  label = "Transparency (All the plots):", 
-                  min = 0, max = 1, 
-                  value = 0.5),
-      
       # Horizontal line for visual separation -----------------------
       hr(),
+      
+      #The third section in the sidebar -----------------------------
+      h4("TRANSPARENCY AND TITLES"), br(),
+      
+      # Set alpha level for the three plots -------------------------
+      sliderInput(inputId = "alpha", 
+                  label = "Transparency", 
+                  min = 0, max = 1, 
+                  value = 0.5),
       
       # Enter text for trend line plot title ------------------------
       textInput(inputId = "plot.title", 
@@ -87,86 +133,68 @@ ui <- fluidPage(
       # Enter text for bar chart title ------------------------------
       textInput(inputId = "plot.title3", 
                 label = "Plot title (Boxplot)", 
-                placeholder = "Enter text to be used as plot title"),
- 
-      # Horizontal line for visual separation -----------------------
-      hr(),
-      
-      # Have two columns in the side bar
-      fluidPage(
-        column(6,
-               
-               # Select which types of project to plot ---------------
-               checkboxGroupInput(inputId = "selected.type",
-                                  label = "Select Program Type(s):",
-                                  choices = c("Intervention", "Mural", 
-                                              "Sculpture"),
-                                  selected = "Intervention")
-        ),
-        
-        column(6,
-        
-               # Select sample size -----------------------------------
-               numericInput(inputId = "n.samp", 
-                            label = "Sample size:", 
-                            min = 1, max = nrow(nyc_art_programs), 
-                            value = 20),
-        
-               # Show data table -------------------------------------
-               checkboxInput(inputId = "show.data",
-                             label = "Show data table",
-                             value = TRUE)
-        )
-      )
+                placeholder = "Enter text to be used as plot title")
     ),
     
     # Output: --------------------------------------------------------
     mainPanel(
-      
-      # Guide users to select program years for plottig trend line ---
-      uiOutput(outputId = "n.0"),
-      br(), br(),    # a little bit of visual separation
-      
-      # Show trend line ----------------------------------------------
-      plotOutput(outputId = "line"),
-      br(),        # a little bit of visual separation
-      
-      # Guide users to sample observations for bar chart and boxplot -
-      uiOutput(outputId = "n.1"),
-      br(), br(),    # a little bit of visual separation
-      
-      # Show bar charts ----------------------------------------------
-      plotOutput(outputId = "barchart"),
-      br(),        # a little bit of visual separation
-      
-      # Show boxplots ------------------------------------------------
-      plotOutput(outputId = "boxplot"),
-      br(),        # a little bit of visual separation
-      
-      # Print number of obs for bar chart and boxplot  ---------------
-      uiOutput(outputId = "n.2"),
-      br(), br(),    # a little bit of visual separation
-      
-      # Show data table ----------------------------------------------
-      DT::dataTableOutput(outputId = "programstable")
+        
+      # Build two tabs to separate overall and detailed statistics ---
+      tabsetPanel(
+          
+        # The first tab
+        tabPanel("General Trend", 
+                 
+                  # Guide users to select program years for plottig trend line 
+                  uiOutput(outputId = "n.0"),
+                  br(),                # a little bit of visual separation
+        
+                  # Show trend line ----------------------------------
+                  plotOutput(outputId = "line"),
+                  br(), br(), br(),
+                   
+                  # Show data table ------------------------------------
+                  DT::dataTableOutput(outputId = "programstable")),
+        
+        # The second tab
+        tabPanel("Break Down by Program Characteristics",
+                 
+                 # Guide users to sample observations for bar chart and boxplot
+                 uiOutput(outputId = "n.1"),
+                 br(),                # a little bit of visual separation
+                 
+                 # Show bar charts -----------------------------------
+                 plotOutput(outputId = "barchart"),
+                 br(), br(),           # a little bit of visual separation
+                 
+                 # Show boxplots -------------------------------------
+                 plotOutput(outputId = "boxplot"),
+                 br(),                  # a little bit of visual separation
+                 
+                 # Print number of obs for bar chart and boxplot  ----
+                 uiOutput(outputId = "n.2"),
+                 br(), br(), br(),     # a little bit of visual separation
+                 
+                 # Show data table ------------------------------------
+                 DT::dataTableOutput(outputId = "programstable.2"))
+      )
     )
   )
 )
 
-
-# Define server function required to create the scatterplot ----------
+# Define server function required to create the plots ----------------
 server <- function(input, output, session) {
+  
+  # Create a subset of data filtering for selected program years ------
+  years.subset <- reactive({
+    req(input$selected.year) # ensure availablity of value before proceeding
+    filter(nyc_art_programs, Year %in% input$selected.year)
+  })
   
   # Create a subset of data filtering for selected program types -----
   programs.subset <- reactive({
     req(input$selected.type) # ensure availablity of value before proceeding
     filter(nyc_art_programs, Project.Type %in% input$selected.type)
-  })
-  
-  # Create a subset of data filtering for selected program types ------
-  years.subset <- reactive({
-    req(input$selected.year) # ensure availablity of value before proceeding
-    filter(nyc_art_programs, Year %in% input$selected.year)
   })
   
   # Update the maximum allowed n.samp for selected type programs ------
@@ -193,30 +221,39 @@ server <- function(input, output, session) {
   # Convert plot.title3 toTitleCase for boxplot ----------------------
   pretty.plot.title3 <- reactive({ toTitleCase(input$plot.title3) })
   
-  # Guide users to select years for the trend line -----------
+  # Guide users to select years for the trend line -----------------
   output$n.0 <- renderUI({
     
     HTML("Select program years for plotting the number of programs
           in each month bewteen 2008 and 2020. <br>")
   })
 
-  # Create line object the plotOutput function is expecting --
+  # Create trend line object the plotOutput function is expecting ---
   output$line <- renderPlot({
     ggplot(data = years.subset(), aes_string(x = "Year.Month")) +
       geom_line(stat = 'count', alpha = input$alpha) +
       labs(x = toTitleCase("Month and Year"),
+           y = toTitleCase("Count"),
            title = pretty.plot.title()
       )
   })
+  
+  # Print the first data table if checked --------------------------
+  output$programstable <- DT::renderDataTable(
+    if(input$show.data){
+      DT::datatable(data = years.subset()[, 1:22], 
+                    extensions = 'Scroller', 
+                    options = list(pageLength = 10,
+                                   scrollX = TRUE),
+                    rownames = FALSE)
+    })
   
   # Guide users to sample observations for bar chart and boxplot -----
   output$n.1 <- renderUI({
     
     HTML("Type in the number of programs to be sampled for
          plotting the bar chart/boxplot displayed below. <br>
-         
         Select types of programs that will be sampled. <br>
-         
         Select X-aixs variables.")
   })
   
@@ -253,10 +290,10 @@ server <- function(input, output, session) {
                "temporary NYC art programs in this sample. <br>"))
   })
   
-  # Print data table if checked -------------------------------------
-  output$programstable <- DT::renderDataTable(
-    if(input$show.data){
-      DT::datatable(data = programs.sample()[, 1:7], 
+  # Print the data table in the second tab if checked ---------------
+  output$programstable.2 <- DT::renderDataTable(
+    if(input$show.data.2){
+      DT::datatable(data = programs.sample()[, 1:22], 
                     extensions = 'Scroller', 
                     options = list(pageLength = 10,
                                    scrollX = TRUE),
