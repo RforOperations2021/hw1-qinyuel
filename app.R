@@ -24,7 +24,7 @@ nyc_art_programs$Year.Month <- as.yearmon(nyc_art_programs$Year.Month)
 ui <- fluidPage(
 
   # Application title -----------------------------------------------
-  titlePanel("Temporary Art Programs in New York City (2008-2020)"),
+  titlePanel("NYC Temporary Art Programs Browser"),
   
   # One functioning downloadButton()
   downloadButton("downloadData", "Download Dataset"),
@@ -37,7 +37,7 @@ ui <- fluidPage(
       
       # Select which years to plot --------------------------
       checkboxGroupInput(inputId = "selected.year",
-                         label = "Select Program Year(s):",
+                         label = "Select Program Year(s) (Trend line):",
                          choices = c(2008:2020),
                          selected = c(2008:2020)),
       
@@ -215,7 +215,9 @@ server <- function(input, output, session) {
     HTML("Type in the number of programs to be sampled for
          plotting the bar chart/boxplot displayed below. <br>
          
-        Select types of programs that will be sampled.")
+        Select types of programs that will be sampled. <br>
+         
+        Select X-aixs variables.")
   })
   
   # Create bar chart object the plotOutput function is expecting -----

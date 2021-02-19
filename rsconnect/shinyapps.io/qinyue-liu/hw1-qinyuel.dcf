@@ -5,8 +5,8 @@ account: qinyue-liu
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3634483
-bundleId: 4222710
+bundleId: 4243107
 url: https://qinyue-liu.shinyapps.io/hw1-qinyuel/
-when: 1613338866.60454
+when: 1613695174.94587
 asMultiple: FALSE
 asStatic: FALSE
